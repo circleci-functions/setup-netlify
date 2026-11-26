@@ -32,7 +32,7 @@ func TestAcceptance_SetupInstallsAndLinks(t *testing.T) {
 func TestAcceptance_DeployPreview(t *testing.T) {
 	e := newEnv(t)
 
-	out, err := e.run(t, append(e.cliFlags(), "deploy", "--project-dir="+e.projectDir)...)
+	out, err := e.run(t, append([]string{"deploy", "--project-dir=" + e.projectDir}, e.cliFlags()...)...)
 	assert.NilError(t, err, out)
 	assert.Check(t, cmp.Contains(out, "built for deploy-preview"))
 	created := e.netlify.Created()
@@ -46,7 +46,7 @@ func TestAcceptance_DeployPreview(t *testing.T) {
 func TestAcceptance_DeployStagedThenPromote(t *testing.T) {
 	e := newEnv(t)
 
-	out, err := e.run(t, append(e.cliFlags(), "deploy", "--project-dir="+e.projectDir, "--environment=production", "--staged")...)
+	out, err := e.run(t, append([]string{"deploy", "--project-dir=" + e.projectDir, "--environment=production", "--staged"}, e.cliFlags()...)...)
 	assert.NilError(t, err, out)
 	assert.Check(t, cmp.Contains(out, "built for production"))
 	assert.Check(t, cmp.Equal(e.netlify.Published(), ""))
@@ -65,7 +65,7 @@ func TestAcceptance_DeployProductionPassesEnvToFunctions(t *testing.T) {
 	assert.NilError(t, os.WriteFile(filepath.Join(fn, "hello.mjs"),
 		[]byte("export default async () => new Response(process.env.DATABASE_URL ? 'db' : 'none')\n"), 0o600))
 
-	out, err := e.run(t, append(e.cliFlags(), "deploy", "--project-dir="+e.projectDir, "--environment=production")...)
+	out, err := e.run(t, append([]string{"deploy", "--project-dir=" + e.projectDir, "--environment=production"}, e.cliFlags()...)...)
 	assert.NilError(t, err, out)
 	assert.Check(t, cmp.Equal(e.netlify.Published(), "dep001"))
 	updates := e.netlify.Updates()
